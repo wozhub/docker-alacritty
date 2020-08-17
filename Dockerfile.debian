@@ -4,8 +4,8 @@ ENV ALACRITTY_VERSION 0.5.0
 
 ENV ALACRITTY_URL https://github.com/alacritty/alacritty/archive/v${ALACRITTY_VERSION}.zip
 
-RUN apt update && \
-    apt -y install \
+RUN apt-get update && \
+    apt-get -y install \
         cmake \
         pkg-config \
         libfreetype6-dev \
