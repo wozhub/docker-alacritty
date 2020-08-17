@@ -1,4 +1,4 @@
-FROM rust:buster
+FROM debian:latest
 
 ENV ALACRITTY_VERSION 0.5.0
 
