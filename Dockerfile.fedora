@@ -1,13 +1,16 @@
-FROM fedora:latest
+ARG ALACRITTY_VERSION=0.5.0
+
+FROM fedora:latest AS builder
 MAINTAINER David Wozniak
 
-ENV ALACRITTY_VERSION 0.5.0
-
+ARG ALACRITTY_VERSION
+ENV ALACRITTY_VERSION=${ALACRITTY_VERSION}
 ENV ALACRITTY_URL https://github.com/alacritty/alacritty/archive/v${ALACRITTY_VERSION}.zip
 
 # Install prerequisites
 RUN dnf install -y \
         cmake \
+        curl \
         fontconfig-devel \
         freetype-devel \
         gcc \
@@ -16,17 +19,24 @@ RUN dnf install -y \
         unzip && \
     dnf clean all && \
     rm -rf /var/cache/yum/*
-    #
-    # Install rust
-    curl -o /tmp/rustup.sh https://sh.rustup.rs && \
+
+# Install rust
+RUN curl -o /tmp/rustup.sh https://sh.rustup.rs && \
     sh /tmp/rustup.sh -y && \
     export PATH="$HOME/.cargo/bin:${PATH}" && \
     rustup override set stable && \
-    rustup update stable && \
-    #
-    # Download source and unzip it
-    echo "Downloading ${ALACRITTY_URL}" && \
-    curl -o /tmp/alacritty.zip -L "${ALACRITTY_URL}" && \
+    rustup update stable
+ 
+# Download source and unzip it
+RUN curl -o /tmp/alacritty.zip -L "${ALACRITTY_URL}" && \
     cd /tmp && unzip /tmp/alacritty.zip && \
     cd "/tmp/alacritty-${ALACRITTY_VERSION}" && \
     source $HOME/.cargo/env && cargo build --release
+
+# Copy binary to an empty image
+FROM fedora:latest  
+
+ARG ALACRITTY_VERSION
+ENV ALACRITTY_VERSION=${ALACRITTY_VERSION}
+
+COPY --from=builder /tmp/alacritty-${ALACRITTY_VERSION}/target/release/alacritty /alacritty
