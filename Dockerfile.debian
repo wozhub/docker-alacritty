@@ -1,4 +1,5 @@
 FROM debian:latest
+MAINTAINER David Wozniak
 
 ENV ALACRITTY_VERSION 0.5.0
 
@@ -7,12 +8,14 @@ ENV ALACRITTY_URL https://github.com/alacritty/alacritty/archive/v${ALACRITTY_VE
 RUN apt-get update && \
     apt-get -y install \
         cmake \
+        curl \
         pkg-config \
         libfreetype6-dev \
         libfontconfig1-dev \
         libxcb-xfixes0-dev \
         python3 \
         unzip && \
+    rm -rf /var/lib/apt/lists/*
     #
     # Install rust
     curl -o /tmp/rustup.sh https://sh.rustup.rs && \
