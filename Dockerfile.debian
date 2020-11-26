@@ -23,7 +23,7 @@ RUN apt-get update && \
 # Install rust
 RUN curl -o /tmp/rustup.sh https://sh.rustup.rs && \
     sh /tmp/rustup.sh -y && \
-    export PATH="${HOME}/.cargo/bin:${PATH}" && \
+    export PATH="$HOME/.cargo/bin:${PATH}" && \
     rustup override set stable && \
     rustup update stable
  
@@ -31,7 +31,7 @@ RUN curl -o /tmp/rustup.sh https://sh.rustup.rs && \
 RUN curl -o /tmp/alacritty.zip -L "${ALACRITTY_URL}" && \
     cd /tmp && unzip /tmp/alacritty.zip && \
     cd "/tmp/alacritty-${ALACRITTY_VERSION}" && \
-    . "${HOME}/.cargo/env" && cargo build --release
+    source $HOME/.cargo/env && cargo build --release
 
 # Copy binary to an empty image
 FROM debian:latest
