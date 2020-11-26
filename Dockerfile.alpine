@@ -1,42 +1,36 @@
-ARG ALACRITTY_VERSION=0.5.0
+ARG CMDG_VERSION=1.02
 
-FROM alpine:latest AS builder
+FROM golang:alpine AS builder
 MAINTAINER David Wozniak
 
-ARG ALACRITTY_VERSION
-ENV ALACRITTY_VERSION=${ALACRITTY_VERSION}
-ENV ALACRITTY_URL https://github.com/alacritty/alacritty/archive/v${ALACRITTY_VERSION}.zip
+ARG CMDG_VERSION
+ENV CMDG_VERSION=${CMDG_VERSION}
+ENV CMDG_URL https://github.com/ThomasHabets/cmdg/archive/cmdg-${CMDG_VERSION}.zip
 
 # Install prerequisites
 RUN apk add --no-cache \
-        cmake \
-        curl \
-	gcc \
-	musl-dev \
-        pkgconf \
-        freetype-dev \
-        fontconfig-dev \
-        libxfixes-dev \
-        python3 \
-        unzip
+         curl \
+         unzip
+#         cmake \
+# 	gcc \
+# 	musl-dev \
+#         pkgconf \
+#         freetype-dev \
+#         fontconfig-dev \
+#         libxfixes-dev \
+#         python3 \
 
-# Install rust
-RUN curl -o /tmp/rustup.sh https://sh.rustup.rs && \
-    sh /tmp/rustup.sh -y && \
-    export PATH="${HOME}/.cargo/bin:${PATH}" && \
-    rustup override set stable && \
-    rustup update stable
- 
+
 # Download source and unzip it
-RUN curl -o /tmp/alacritty.zip -L "${ALACRITTY_URL}" && \
-    cd /tmp && unzip /tmp/alacritty.zip && \
-    cd "/tmp/alacritty-${ALACRITTY_VERSION}" && \
-    . "${HOME}/.cargo/env" && cargo build --release
+RUN curl -o /tmp/cmdg.zip -L "${CMDG_URL}" && \
+    cd /tmp && unzip /tmp/cmdg.zip && \
+    cd "/tmp/cmdg-cmdg-${CMDG_VERSION}" && \
+    go build ./cmd/cmdg
 
 # Copy binary to an empty image
 FROM alpine:latest
 
-ARG ALACRITTY_VERSION
-ENV ALACRITTY_VERSION=${ALACRITTY_VERSION}
+ARG CMDG_VERSION
+ENV CMDG_VERSION=${CMDG_VERSION}
 
-COPY --from=builder /tmp/alacritty-${ALACRITTY_VERSION}/target/release/alacritty /alacritty
+COPY --from=builder /tmp/cmdg-cmdg-${CMDG_VERSION}/cmdg /usr/local/bin
