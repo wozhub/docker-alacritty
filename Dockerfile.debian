@@ -1,4 +1,4 @@
-ARG ALACRITTY_VERSION=0.5.0
+ARG ALACRITTY_VERSION=0.8.0
 
 FROM debian:latest AS builder
 MAINTAINER David Wozniak
@@ -31,7 +31,8 @@ RUN curl -o /tmp/rustup.sh https://sh.rustup.rs && \
 RUN curl -o /tmp/alacritty.zip -L "${ALACRITTY_URL}" && \
     cd /tmp && unzip /tmp/alacritty.zip && \
     cd "/tmp/alacritty-${ALACRITTY_VERSION}" && \
-    source $HOME/.cargo/env && cargo build --release
+    echo "Sourcing $HOME/.cargo/env" && \
+    . $HOME/.cargo/env && cargo build --release
 
 # Copy binary to an empty image
 FROM debian:latest
